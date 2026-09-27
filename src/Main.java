@@ -1,0 +1,23 @@
+import diff.Diff;
+import diff.DpDiff;
+import diff.MyersDiff;
+import diff.NaiveDiff;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+public class Main {
+
+    public static void main(String[] args) throws IOException {
+        List<String> a = Files.readAllLines(Path.of("a.txt"));
+        List<String> b = Files.readAllLines(Path.of("b.txt"));
+
+        List<Diff> algorithms = List.of(new NaiveDiff(), new DpDiff(), new MyersDiff());
+
+        for (Diff algorithm : algorithms) {
+            algorithm.diff(a, b).forEach(System.out::println);
+        }
+    }
+}
