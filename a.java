@@ -1,6 +1,4 @@
 import diff.Diff;
-import diff.DpDiff;
-import diff.MyersDiff;
 import diff.NaiveDiff;
 
 import java.io.IOException;
@@ -14,7 +12,7 @@ public class Main {
         List<String> a = Files.readAllLines(Path.of("a.java"));
         List<String> b = Files.readAllLines(Path.of("b.java"));
 
-        List<Diff> algorithms = List.of(new NaiveDiff(), new DpDiff(), new MyersDiff());
+        List<Diff> algorithms = List.of(new NaiveDiff());
 
         for (Diff algorithm : algorithms) {
             algorithm.diff(a, b).forEach(System.out::println);
