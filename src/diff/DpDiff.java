@@ -1,8 +1,13 @@
 package diff;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static diff.Operation.Type.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DpDiff implements Diff {
 
@@ -62,4 +67,40 @@ public class DpDiff implements Diff {
         Collections.reverse(result);
         return result;
     }
+
+    @Test
+    void empty() {
+        assertThat(new DpDiff().diff(List.of(), List.of()))
+                .isEmpty();
+    }
+
+    @Test
+    void identical() {
+        assertThat(new DpDiff().diff(List.of("a", "b", "c"), List.of("a", "b", "c")))
+                .containsExactly(
+                        new Operation(EQUAL, "a"),
+                        new Operation(EQUAL, "b"),
+                        new Operation(EQUAL, "c"));
+    }
+
+    @Test
+    void different() {
+        assertThat(new DpDiff().diff(List.of("a", "b"), List.of("c", "d")))
+                .containsExactly(
+                        new Operation(DELETE, "a"),
+                        new Operation(DELETE, "b"),
+                        new Operation(INSERT, "c"),
+                        new Operation(INSERT, "d"));
+    }
+
+    @Test
+    void dpChapterExample() {
+        assertThat(new DpDiff().diff(List.of("x", "p", "q"), List.of("p", "q", "y")))
+                .containsExactly(
+                        new Operation(DELETE, "x"),
+                        new Operation(EQUAL, "p"),
+                        new Operation(EQUAL, "q"),
+                        new Operation(INSERT, "y"));
+    }
+
 }

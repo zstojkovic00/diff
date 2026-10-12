@@ -1,7 +1,12 @@
 package diff;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static diff.Operation.Type.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NaiveDiff implements Diff {
 
@@ -51,4 +56,40 @@ public class NaiveDiff implements Diff {
 
         return result;
     }
+
+    @Test
+    void empty() {
+        assertThat(new NaiveDiff().diff(List.of(), List.of()))
+                .isEmpty();
+    }
+
+    @Test
+    void identical() {
+        assertThat(new NaiveDiff().diff(List.of("a", "b", "c"), List.of("a", "b", "c")))
+                .containsExactly(
+                        new Operation(EQUAL, "a"),
+                        new Operation(EQUAL, "b"),
+                        new Operation(EQUAL, "c"));
+    }
+
+    @Test
+    void different() {
+        assertThat(new NaiveDiff().diff(List.of("a", "b"), List.of("c", "d")))
+                .containsExactly(
+                        new Operation(DELETE, "a"),
+                        new Operation(DELETE, "b"),
+                        new Operation(INSERT, "c"),
+                        new Operation(INSERT, "d"));
+    }
+
+    @Test
+    void naiveChapterExample() {
+        assertThat(new NaiveDiff().diff(List.of("p", "q", "p"), List.of("q", "p")))
+                .containsExactly(
+                        new Operation(INSERT, "q"),
+                        new Operation(EQUAL, "p"),
+                        new Operation(DELETE, "q"),
+                        new Operation(DELETE, "p"));
+    }
+
 }

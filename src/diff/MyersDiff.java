@@ -1,13 +1,16 @@
 package diff;
 
 import diff.Operation.Type;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MyersDiff implements Diff {
+import static diff.Operation.Type.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
+public class MyersDiff implements Diff {
 
     @Override
     public List<Operation> diff(List<String> a, List<String> b) {
@@ -72,10 +75,10 @@ public class MyersDiff implements Diff {
         int m = b.size();
         int max = n + m;
         int offset = max;
-        int[] v = new int[max * 2 + 1];
+        int[] v = new int[max * 2 + 2];
         List<int[]> trace = new ArrayList<>();
 
-        for (int d = 0; d < max; d++) {
+        for (int d = 0; d <= max; d++) {
             trace.add(v.clone());
             for (int k = -d; k <= d; k += 2) {
                 int x;
@@ -103,6 +106,47 @@ public class MyersDiff implements Diff {
             }
         }
         return trace;
+    }
+
+    @Test
+    void empty() {
+        assertThat(new MyersDiff().diff(List.of(), List.of()))
+                .isEmpty();
+    }
+
+    @Test
+    void identical() {
+        assertThat(new MyersDiff().diff(List.of("a", "b", "c"), List.of("a", "b", "c")))
+                .containsExactly(
+                        new Operation(EQUAL, "a"),
+                        new Operation(EQUAL, "b"),
+                        new Operation(EQUAL, "c"));
+    }
+
+    @Test
+    void different() {
+        assertThat(new MyersDiff().diff(List.of("a", "b"), List.of("c", "d")))
+                .containsExactly(
+                        new Operation(DELETE, "a"),
+                        new Operation(DELETE, "b"),
+                        new Operation(INSERT, "c"),
+                        new Operation(INSERT, "d"));
+    }
+    @Test
+    void myersPaperExample() {
+        assertThat(new MyersDiff().diff(
+                List.of("a", "b", "c", "a", "b", "b", "a"),
+                List.of("c", "b", "a", "b", "a", "c")))
+                .containsExactly(
+                        new Operation(DELETE, "a"),
+                        new Operation(DELETE, "b"),
+                        new Operation(EQUAL, "c"),
+                        new Operation(INSERT, "b"),
+                        new Operation(EQUAL, "a"),
+                        new Operation(EQUAL, "b"),
+                        new Operation(DELETE, "b"),
+                        new Operation(EQUAL, "a"),
+                        new Operation(INSERT, "c"));
     }
 
 }
